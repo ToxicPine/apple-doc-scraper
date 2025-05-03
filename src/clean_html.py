@@ -2,22 +2,6 @@ from typing import Literal
 from bs4 import BeautifulSoup, NavigableString, Comment, Tag
 from src.common import LoggerInterface, RichLogger
 
-ALLOWED_BY_DEFAULT_TAGS = {
-        "button",
-        "div",
-        "p",
-        "a",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-        "h7",
-        "h8",
-        "h9",
-        "h10",
-    }
-
 
 # ===============================================
 # Core HTML Cleaning Function
@@ -25,7 +9,7 @@ ALLOWED_BY_DEFAULT_TAGS = {
 def perform_html_cleaning(
     html_content: str,
     logger: LoggerInterface,
-    allowed_tags: set[str] = ALLOWED_BY_DEFAULT_TAGS,
+    allowed_tags: set[str],
     allowed_attributes: set[str] = {"href", "expanded"},
     parser: Literal["lxml", "html.parser"] = "lxml",
 ) -> str:
@@ -80,8 +64,7 @@ def perform_html_cleaning(
             if not div.parent:
                 continue
             is_empty_or_whitespace = not div.contents or all(
-                isinstance(c, NavigableString) and not c.strip()
-                for c in div.contents
+                isinstance(c, NavigableString) and not c.strip() for c in div.contents
             )
             if is_empty_or_whitespace:
                 div.decompose()
@@ -135,7 +118,7 @@ def perform_html_cleaning(
     for a_tag in reversed(soup.find_all("a")):
         if not a_tag.parent:
             continue
-        
+
         # Check if the <a> tag contains an <h2> tag
         h2_tags = a_tag.find_all("h2")
         if h2_tags:
